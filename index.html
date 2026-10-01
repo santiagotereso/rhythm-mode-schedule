@@ -136,7 +136,9 @@ h1 .soft{font-weight:400;color:rgba(21,22,26,.55)}
 /* look del documento: lavanda #8688DA, negro #15161A, Work Sans + Playfair */
 #panel-client{--lav:#8688DA;--ink:#15161A;--gold:#F2C14E;--coral:#E8563F;
   font-family:"Work Sans","Segoe UI",system-ui,sans-serif}
-#panel-client .g-bar{background:var(--lav);border:1px solid rgba(21,22,26,.28);border-radius:2px}
+/* la barra se ajusta a la leyenda: sin el aviso de scroll no debe estirarse */
+#panel-client .g-bar{background:var(--lav);border:1px solid rgba(21,22,26,.28);border-radius:2px;
+  width:-moz-fit-content;width:fit-content;max-width:100%}
 #panel-client .glg{color:var(--ink);font-size:11.5px}
 #panel-client .glg-d{background:var(--ink)}
 #panel-client .glg-t{background:var(--ink)}
