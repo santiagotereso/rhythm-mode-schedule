@@ -1,0 +1,413 @@
+<title>KPDH Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&family=Playfair+Display:ital@1&display=swap">
+
+<style>
+:root{
+  color-scheme:light;
+  --lav:#8688DA; --ink:#15161A;
+  --paper:#8688DA; --surface:#8688DA; --surface-2:#7B7DD2;
+  --ink-2:rgba(21,22,26,.72); --ink-3:rgba(21,22,26,.5);
+  --line:rgba(21,22,26,.14); --line-2:rgba(21,22,26,.3);
+  --hard:#15161A; --hard-bg:rgba(21,22,26,.08);
+  --gate:#15161A; --gate-bg:rgba(21,22,26,.08);
+  --buffer:rgba(21,22,26,.7); --buffer-bg:rgba(21,22,26,.06);
+  --routine:rgba(21,22,26,.5);
+  --build:#15161A; --build-bg:#15161A;
+  --ok:#15161A; --ok-bg:rgba(21,22,26,.08);
+  --shadow:none;
+  --sbw:0px;
+  --font-d:"Work Sans","Segoe UI",system-ui,sans-serif;
+  --font-b:"Work Sans","Segoe UI",system-ui,sans-serif;
+  --font-m:"Work Sans","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 24px;background:var(--lav);color:var(--ink);
+  font-family:var(--font-b);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-block:64px 86px}
+h1{margin:0 0 40px;font-size:clamp(29px,4.4vw,52px);font-weight:600;letter-spacing:-.025em;
+  line-height:1.08;text-wrap:balance}
+h1 .soft{font-weight:400;color:rgba(21,22,26,.55)}
+.foot{margin:34px 0 0;font-size:16px;color:var(--ink-2)}
+.foot em{font-family:"Playfair Display",Georgia,serif;font-style:italic}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ================= GANTT ================= */
+.fullbleed{margin-left:calc(50% - 50vw + var(--sbw,0px)/2);margin-right:calc(50% - 50vw + var(--sbw,0px)/2)}
+.g-bar{display:flex;align-items:center;justify-content:space-between;gap:8px 18px;flex-wrap:wrap;
+  margin:0 0 10px;padding:9px 14px;background:var(--surface);border:1px solid var(--line);border-radius:3px}
+.g-hint{font-family:var(--font-m);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin:0}
+.g-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0;padding:0;background:none;border:0}
+.glg{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-2)}
+.glg-s{width:26px;height:11px;border-radius:2px;flex:0 0 26px}
+.glg-d{width:12px;height:12px;flex:0 0 12px;transform:rotate(45deg);background:var(--hard)}
+.glg-t{width:12px;height:12px;flex:0 0 12px;border-radius:50%;background:var(--gate)}
+.glg-f{width:26px;height:13px;flex:0 0 26px;border-radius:2px;
+  background:repeating-linear-gradient(-45deg,transparent,transparent 3px,var(--line-2) 3px,var(--line-2) 5px);
+  border:1px solid var(--line-2)}
+
+.g-scroll{overflow-x:auto;background:var(--surface);border-block:1px solid var(--line)}
+.g-inner{width:4506px;position:relative}
+.g-row{display:grid;grid-template-columns:216px 4290px;border-bottom:1px solid var(--line);min-height:38px}
+.g-lab{
+  position:sticky;left:0;z-index:3;background:var(--surface);
+  border-right:2px solid var(--line-2);padding:8px 14px;display:flex;align-items:center;
+  font-family:var(--font-d);font-size:12px;font-weight:700;letter-spacing:.04em;line-height:1.2;
+}
+.g-track{position:relative;min-width:0}
+.g-track::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    repeating-linear-gradient(to right,transparent 0 52px,var(--surface-2) 52px 104px,transparent 104px 182px),
+    repeating-linear-gradient(to right,var(--line-2) 0 1px,transparent 1px 182px),
+    repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 26px);
+  background-position:0 0,104px 0,0 0;
+}
+
+.g-overlay{position:absolute;top:0;bottom:0;left:216px;width:4290px;pointer-events:none;z-index:1}
+.g-hol{position:absolute;top:0;bottom:0;
+  background:repeating-linear-gradient(-45deg,transparent,transparent 4px,var(--line-2) 4px,var(--line-2) 6px);
+  opacity:.75}
+.g-mline{position:absolute;top:0;bottom:0;width:1px;background:var(--ink-3);opacity:.45}
+.g-gline{position:absolute;top:0;bottom:0;width:0;border-left:1px dotted var(--hard);opacity:.4}
+.g-today{position:absolute;top:0;bottom:0;width:2px;background:var(--hard);opacity:.6}
+
+.g-row--months{min-height:30px}
+.g-row--months .g-lab,.g-row--months .g-track{background:var(--surface-2)}
+.g-row--months .g-track::before{display:none}
+.g-month{position:absolute;top:0;bottom:0;display:flex;align-items:center;padding-left:10px;
+  font-family:var(--font-d);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);border-left:1px solid var(--line-2);overflow:hidden}
+.g-row--days{min-height:34px;border-bottom:2px solid var(--line-2)}
+.g-row--days .g-lab{font-family:var(--font-m);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:400}
+.g-row--days .g-track::before{display:none}
+.g-days{display:grid;grid-template-columns:repeat(165,26px);height:100%}
+.g-day{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-left:1px solid var(--line);font-variant-numeric:tabular-nums}
+.g-day i{font-family:var(--font-m);font-size:8px;font-style:normal;line-height:1.1;color:var(--ink-3);text-transform:uppercase}
+.g-day b{font-family:var(--font-m);font-size:10px;font-weight:500;line-height:1.25;color:var(--ink-2)}
+.g-day--wknd{background:var(--surface-2)}
+.g-day--wknd b,.g-day--wknd i{color:var(--ink-3);opacity:.7}
+.g-day--mon{border-left-color:var(--line-2)}
+.g-day--today b{color:#fff;background:var(--hard);border-radius:2px;padding:0 4px}
+
+.g-row--ms{min-height:94px}
+.g-row--cad{min-height:40px}
+
+.bar{position:absolute;top:50%;transform:translateY(-50%);z-index:2;height:24px;border-radius:3px;
+  display:flex;align-items:center;padding:0 10px;white-space:nowrap;overflow:hidden;
+  font-size:11.5px;font-weight:600;letter-spacing:-.005em}
+.bar--build{background:var(--build-bg);color:var(--ink);border:1px solid var(--line-2);border-left:3px solid var(--build)}
+.bar--plan{background:none;color:var(--ink-3);border:1px dashed var(--line-2)}
+.bar--late{background:var(--hard);color:#fff;border:1px solid var(--hard)}
+.bar--netflix{color:var(--gate);border:1px dashed var(--gate);
+  background:repeating-linear-gradient(-45deg,var(--gate-bg),var(--gate-bg) 5px,transparent 5px,transparent 10px)}
+.bar--buffer{color:var(--buffer);border:1px dashed var(--buffer);
+  background:repeating-linear-gradient(-45deg,var(--buffer-bg),var(--buffer-bg) 5px,transparent 5px,transparent 10px)}
+.bar--warn{background:var(--buffer-bg);color:var(--buffer);border:1px solid var(--buffer);border-left:3px solid var(--buffer)}
+
+.ms{position:absolute;top:50%;z-index:2;width:15px;height:15px;transform:translate(-50%,-50%) rotate(45deg);
+  background:var(--hard);border:2px solid var(--surface);border-radius:2px}
+.ms-l{position:absolute;top:50%;z-index:2;transform:translateY(-50%);padding-left:15px;line-height:1.3}
+.ms-l b{display:block;font-family:var(--font-d);font-size:12px;font-weight:700;color:var(--hard);white-space:nowrap}
+.ms-l span{display:block;font-size:10.5px;color:var(--ink-2);margin-top:2px}
+.ms-l em{display:block;font-family:var(--font-m);font-size:10px;font-style:normal;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;margin-top:2px}
+.ms-l--left{padding-left:0;padding-right:15px;text-align:right;transform:translate(-100%,-50%)}
+
+.tick{position:absolute;top:50%;z-index:2;transform:translate(-50%,-50%);border-radius:50%}
+.tick--status{width:8px;height:8px;background:var(--routine)}
+.tick--leads{width:12px;height:12px;background:var(--gate-bg);border:2px solid var(--gate)}
+.tick--play{width:12px;height:12px;background:var(--gate)}
+.tick-l{position:absolute;top:50%;z-index:2;transform:translateY(-50%);
+  font-size:10.5px;font-weight:600;font-style:normal;color:var(--ink-2);white-space:nowrap}
+
+
+
+/* ---------- tercera solapa: plan de entregas ---------- */
+/* geometria propia (eje mas corto que el de las otras dos solapas) */
+#panel-client .g-inner{width:2738px}
+#panel-client .g-row{grid-template-columns:216px 2522px}
+#panel-client .g-overlay{left:216px;width:2522px}
+#panel-client .g-days{grid-template-columns:repeat(97,26px)}
+#panel-client .g-row--cad{min-height:38px}
+
+/* look del documento: lavanda #8688DA, negro #15161A, Work Sans + Playfair */
+#panel-client{--lav:#8688DA;--ink:#15161A;--gold:#F2C14E;--coral:#E8563F;
+  font-family:"Work Sans","Segoe UI",system-ui,sans-serif}
+#panel-client .g-bar{background:var(--lav);border:1px solid rgba(21,22,26,.28);border-radius:2px}
+#panel-client .glg{color:var(--ink);font-size:11.5px}
+#panel-client .glg-d{background:var(--ink)}
+#panel-client .glg-t{background:var(--ink)}
+#panel-client .glg-f{border-color:rgba(21,22,26,.45);
+  background:repeating-linear-gradient(-45deg,transparent,transparent 3px,
+    rgba(21,22,26,.45) 3px,rgba(21,22,26,.45) 5px)}
+#panel-client .g-hint{color:rgba(21,22,26,.62)}
+
+#panel-client .g-scroll{background:var(--lav);border-color:rgba(21,22,26,.3)}
+#panel-client .g-row{border-bottom-color:rgba(21,22,26,.14)}
+#panel-client .g-row--days{border-bottom-color:rgba(21,22,26,.4)}
+#panel-client .g-lab{background:var(--lav);color:var(--ink);
+  border-right-color:rgba(21,22,26,.4);font-family:"Work Sans",sans-serif;
+  font-weight:600;letter-spacing:.02em;font-size:12.5px}
+#panel-client .g-row--months .g-lab,
+#panel-client .g-row--months .g-track{background:#7B7DD2}
+#panel-client .g-month{color:rgba(21,22,26,.72);border-left-color:rgba(21,22,26,.25);
+  font-family:"Work Sans",sans-serif;letter-spacing:.2em}
+#panel-client .g-row--days .g-lab{color:rgba(21,22,26,.6);font-weight:500}
+#panel-client .g-day{border-left-color:rgba(21,22,26,.12)}
+#panel-client .g-day--mon{border-left-color:rgba(21,22,26,.3)}
+#panel-client .g-day--wknd{background:rgba(21,22,26,.07)}
+#panel-client .g-day b{color:rgba(21,22,26,.82);font-family:"Work Sans",sans-serif}
+#panel-client .g-day i{color:rgba(21,22,26,.5);font-family:"Work Sans",sans-serif}
+#panel-client .g-day--wknd b,#panel-client .g-day--wknd i{color:rgba(21,22,26,.5)}
+#panel-client .g-day--today b{background:var(--ink);color:var(--lav)}
+/* el eje arranca lunes: la banda del fin de semana va del dia 5 al 7 (130-182px)
+   y la linea de semana en 0, no en los valores del eje original */
+#panel-client .g-track::before{background-image:
+  repeating-linear-gradient(to right,transparent 0 130px,rgba(21,22,26,.06) 130px 182px),
+  repeating-linear-gradient(to right,rgba(21,22,26,.22) 0 1px,transparent 1px 182px),
+  repeating-linear-gradient(to right,rgba(21,22,26,.09) 0 1px,transparent 1px 26px);
+  background-position:0 0,0 0,0 0}
+
+/* las barras y etiquetas son <i>: la italica queda solo para las fechas */
+#panel-client .bar,#panel-client .ms-l b,#panel-client .ms-l span,
+#panel-client .tick-l{font-style:normal}
+#panel-client .bar{font-family:"Work Sans",sans-serif;font-weight:600;font-size:12px}
+#panel-client .bar--build{background:var(--ink);color:var(--lav);border:0;border-radius:2px}
+#panel-client .bar--netflix{background:none;color:var(--ink);
+  border:1.5px dashed rgba(21,22,26,.75)}
+#panel-client .bar--buffer{background:none;color:rgba(21,22,26,.8);
+  border:1.5px dashed rgba(21,22,26,.45)}
+
+#panel-client .ms{background:var(--ink);border-color:var(--lav)}
+#panel-client .ms-l b{color:var(--ink);font-family:"Work Sans",sans-serif;font-weight:600;font-size:12.5px}
+#panel-client .ms-l span{color:rgba(21,22,26,.72)}
+#panel-client .ms-l em{font-family:"Playfair Display",Georgia,serif;font-style:italic;
+  font-size:11.5px;color:rgba(21,22,26,.85);letter-spacing:.01em}
+
+#panel-client .tick--play{background:var(--gold);border:1.5px solid var(--ink)}
+#panel-client .tick--leads{background:var(--lav);border-color:var(--ink)}
+#panel-client .ms--key{background:var(--coral)}
+#panel-client .tick-l{color:rgba(21,22,26,.8);font-family:"Work Sans",sans-serif}
+#panel-client .g-hol{background:repeating-linear-gradient(-45deg,transparent,transparent 4px,
+  rgba(21,22,26,.4) 4px,rgba(21,22,26,.4) 6px);opacity:.6}
+#panel-client .g-mline{background:rgba(21,22,26,.4);opacity:1}
+#panel-client .g-gline{border-left-color:rgba(21,22,26,.45);opacity:1}
+#panel-client .g-today{background:var(--coral);opacity:.9;width:2px}
+
+</style>
+
+<div class="wrap">
+  <h1><span class="soft">KPDH Harmony &middot; Rhythm Mode</span> Schedule</h1>
+
+  <div id="panel-client">
+    <section class="gsec">
+      <div class="g-bar">
+      <div class="g-legend">
+        <span class="glg"><i class="glg-d"></i> <span>Delivery / milestone</span></span>
+        <span class="glg"><i class="glg-s" style="background:#15161A;border-radius:2px"></i> <span>Prototype work</span></span>
+        <span class="glg"><i class="glg-s" style="border:1.5px dashed rgba(21,22,26,.75);border-radius:2px"></i> <span>Netflix review</span></span>
+        <span class="glg"><i class="glg-s" style="border:1.5px dashed rgba(21,22,26,.45);border-radius:2px"></i> <span>Correction window</span></span>
+        <span class="glg"><i class="glg-t" style="background:#F2C14E;border:1.5px solid #15161A"></i> <span>Weekly call</span></span>
+        <span class="glg"><i class="glg-t" style="background:#8688DA;border:2px solid #15161A"></i> <span>Build available</span></span>
+        <span class="glg"><i class="glg-f"></i> <span>Holiday / Netflix out</span></span>
+      </div>
+      </div>
+
+      <div class="fullbleed">
+      <div class="g-scroll">
+        <div class="g-inner">
+
+          <div class="g-row g-row--months">
+            <div class="g-lab"></div>
+            <div class="g-track">
+              <div class="g-month" style="left:0px;width:78px">Sep</div>
+              <div class="g-month" style="left:78px;width:806px">October</div>
+              <div class="g-month" style="left:884px;width:780px">November</div>
+              <div class="g-month" style="left:1664px;width:806px">December</div>
+              <div class="g-month" style="left:2470px;width:52px">January 2027</div>
+            </div>
+          </div>
+
+          <div class="g-row g-row--days">
+            <div class="g-lab"><span>Week</span></div>
+            <div class="g-track"><div class="g-days">
+              <span class="g-day g-day--mon"><i>M</i><b>28</b></span>
+              <span class="g-day"><i>T</i><b>29</b></span>
+              <span class="g-day"><i>W</i><b>30</b></span>
+              <span class="g-day g-day--today"><i>T</i><b>1</b></span>
+              <span class="g-day"><i>F</i><b>2</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>3</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>4</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>5</b></span>
+              <span class="g-day"><i>T</i><b>6</b></span>
+              <span class="g-day"><i>W</i><b>7</b></span>
+              <span class="g-day"><i>T</i><b>8</b></span>
+              <span class="g-day"><i>F</i><b>9</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>10</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>11</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>12</b></span>
+              <span class="g-day"><i>T</i><b>13</b></span>
+              <span class="g-day"><i>W</i><b>14</b></span>
+              <span class="g-day"><i>T</i><b>15</b></span>
+              <span class="g-day"><i>F</i><b>16</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>17</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>18</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>19</b></span>
+              <span class="g-day"><i>T</i><b>20</b></span>
+              <span class="g-day"><i>W</i><b>21</b></span>
+              <span class="g-day"><i>T</i><b>22</b></span>
+              <span class="g-day"><i>F</i><b>23</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>24</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>25</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>26</b></span>
+              <span class="g-day"><i>T</i><b>27</b></span>
+              <span class="g-day"><i>W</i><b>28</b></span>
+              <span class="g-day"><i>T</i><b>29</b></span>
+              <span class="g-day"><i>F</i><b>30</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>31</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>1</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>2</b></span>
+              <span class="g-day"><i>T</i><b>3</b></span>
+              <span class="g-day"><i>W</i><b>4</b></span>
+              <span class="g-day"><i>T</i><b>5</b></span>
+              <span class="g-day"><i>F</i><b>6</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>7</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>8</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>9</b></span>
+              <span class="g-day"><i>T</i><b>10</b></span>
+              <span class="g-day"><i>W</i><b>11</b></span>
+              <span class="g-day"><i>T</i><b>12</b></span>
+              <span class="g-day"><i>F</i><b>13</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>14</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>15</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>16</b></span>
+              <span class="g-day"><i>T</i><b>17</b></span>
+              <span class="g-day"><i>W</i><b>18</b></span>
+              <span class="g-day"><i>T</i><b>19</b></span>
+              <span class="g-day"><i>F</i><b>20</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>21</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>22</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>23</b></span>
+              <span class="g-day"><i>T</i><b>24</b></span>
+              <span class="g-day"><i>W</i><b>25</b></span>
+              <span class="g-day"><i>T</i><b>26</b></span>
+              <span class="g-day"><i>F</i><b>27</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>28</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>29</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>30</b></span>
+              <span class="g-day"><i>T</i><b>1</b></span>
+              <span class="g-day"><i>W</i><b>2</b></span>
+              <span class="g-day"><i>T</i><b>3</b></span>
+              <span class="g-day"><i>F</i><b>4</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>5</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>6</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>7</b></span>
+              <span class="g-day"><i>T</i><b>8</b></span>
+              <span class="g-day"><i>W</i><b>9</b></span>
+              <span class="g-day"><i>T</i><b>10</b></span>
+              <span class="g-day"><i>F</i><b>11</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>12</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>13</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>14</b></span>
+              <span class="g-day"><i>T</i><b>15</b></span>
+              <span class="g-day"><i>W</i><b>16</b></span>
+              <span class="g-day"><i>T</i><b>17</b></span>
+              <span class="g-day"><i>F</i><b>18</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>19</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>20</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>21</b></span>
+              <span class="g-day"><i>T</i><b>22</b></span>
+              <span class="g-day"><i>W</i><b>23</b></span>
+              <span class="g-day"><i>T</i><b>24</b></span>
+              <span class="g-day"><i>F</i><b>25</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>26</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>27</b></span>
+              <span class="g-day g-day--mon"><i>M</i><b>28</b></span>
+              <span class="g-day"><i>T</i><b>29</b></span>
+              <span class="g-day"><i>W</i><b>30</b></span>
+              <span class="g-day"><i>T</i><b>31</b></span>
+              <span class="g-day"><i>F</i><b>1</b></span>
+              <span class="g-day g-day--wknd"><i>S</i><b>2</b></span>
+            </div></div>
+          </div>
+
+          <div class="g-row g-row--ms">
+            <div class="g-lab" style="border-left:3px solid var(--hard)"><span>Milestones</span></div>
+            <div class="g-track"><i class="ms" style="left:117px"></i><i class="ms-l" style="left:117px;max-width:150px"><b>M1 delivery</b><span>Pre-production deliverables</span><em>Oct 2</em></i><i class="ms" style="left:299px"></i><i class="ms-l" style="left:299px;max-width:240px"><b>M1 accepted</b><span>The build phase starts</span><em>Oct 9</em></i><i class="ms" style="left:1001px"></i><i class="ms-l" style="left:1001px;max-width:250px"><b>Milestone 1</b><span>Intermediate build, with build notes and a known-issues list. Deep dive with Netflix.</span><em>Nov 5</em></i><i class="ms" style="left:1729px"></i><i class="ms-l" style="left:1729px;max-width:175px"><b>Milestone 2</b><span>Second intermediate build. Deep dive.</span><em>Dec 3</em></i><i class="ms ms--key" style="left:1937px"></i><i class="ms-l" style="left:1937px;max-width:250px"><b>Final delivery</b><span>Build + source code + assets + docs</span><em>Dec 11</em></i><i class="ms" style="left:2509px"></i><i class="ms-l ms-l--left" style="left:2509px;max-width:215px"><b>Contract deadline</b><span>Three months from the delivery of M1</span><em>Jan 2</em></i></div>
+          </div>
+          <div class="g-row">
+            <div class="g-lab" style="border-left:3px solid var(--build)"><span>Pre-production (M1)</span></div>
+            <div class="g-track"><i class="bar bar--netflix" style="left:182px;width:130px"><span>Netflix review</span></i></div>
+          </div>
+          <div class="g-row">
+            <div class="g-lab" style="border-left:3px solid var(--build)"><span>Prototype build (M2)</span></div>
+            <div class="g-track"><i class="bar bar--build" style="left:364px;width:1586px"><span>Rhythm core loop on “Golden”</span></i></div>
+          </div>
+          <div class="g-row g-row--cont">
+            <div class="g-lab" style="border-left:3px solid var(--build)"></div>
+            <div class="g-track"><i class="bar bar--build" style="left:364px;width:1378px"><span>NGC controls · tap, swipe, hold</span></i><i class="bar bar--build" style="left:1742px;width:208px"><span>Documentation</span></i></div>
+          </div>
+          <div class="g-row g-row--cont">
+            <div class="g-lab" style="border-left:3px solid var(--build)"></div>
+            <div class="g-track"><i class="bar bar--build" style="left:364px;width:962px"><span>Harmony asset reuse</span></i></div>
+          </div>
+          <div class="g-row g-row--cont">
+            <div class="g-lab" style="border-left:3px solid var(--build)"></div>
+            <div class="g-track"><i class="bar bar--build" style="left:650px;width:1300px"><span>Latency and feel on cloud / TV</span></i></div>
+          </div>
+          <div class="g-row">
+            <div class="g-lab" style="border-left:3px solid var(--buffer)"><span>Acceptance</span></div>
+            <div class="g-track"><i class="bar bar--netflix" style="left:2002px;width:130px"><span>Netflix review</span></i><i class="bar bar--buffer" style="left:2184px;width:286px"><span>Corrections and re-delivery</span></i></div>
+          </div>
+          <div class="g-row g-row--cad">
+            <div class="g-lab" style="border-left:3px solid var(--routine)"><span>Calls with Netflix</span></div>
+            <div class="g-track"><i class="tick tick--play" style="left:117px"></i><i class="tick-l" style="left:126px"><span>Weekly · every Friday</span></i><i class="tick tick--play" style="left:299px"></i><i class="tick tick--play" style="left:481px"></i><i class="tick tick--play" style="left:663px"></i><i class="tick tick--play" style="left:845px"></i><i class="tick tick--play" style="left:1027px"></i><i class="tick tick--play" style="left:1209px"></i><i class="tick tick--play" style="left:1391px"></i><i class="tick tick--play" style="left:1573px"></i><i class="tick tick--play" style="left:1755px"></i><i class="tick tick--play" style="left:1937px"></i><i class="tick tick--play" style="left:2119px"></i></div>
+          </div>
+          <div class="g-row g-row--cad">
+            <div class="g-lab" style="border-left:3px solid var(--routine)"><span>Builds</span></div>
+            <div class="g-track"><i class="tick tick--leads" style="left:637px"></i><i class="tick-l" style="left:646px"><span>Build to review · every Thursday</span></i><i class="tick tick--leads" style="left:819px"></i><i class="tick tick--leads" style="left:1001px"></i><i class="tick tick--leads" style="left:1183px"></i><i class="tick tick--leads" style="left:1365px"></i><i class="tick tick--leads" style="left:1547px"></i><i class="tick tick--leads" style="left:1729px"></i><i class="tick tick--leads" style="left:1911px"></i></div>
+          </div>
+
+          <div class="g-overlay">
+            <i class="g-hol" style="left:1378px;width:26px"></i>
+            <i class="g-hol" style="left:1534px;width:52px"></i>
+            <i class="g-hol" style="left:1846px;width:26px"></i>
+            <i class="g-hol" style="left:2288px;width:26px"></i>
+            <i class="g-hol" style="left:2470px;width:26px"></i>
+            <i class="g-mline" style="left:78px"></i>
+            <i class="g-mline" style="left:884px"></i>
+            <i class="g-mline" style="left:1664px"></i>
+            <i class="g-mline" style="left:2470px"></i>
+            <i class="g-gline" style="left:117px"></i>
+            <i class="g-gline" style="left:299px"></i>
+            <i class="g-gline" style="left:1001px"></i>
+            <i class="g-gline" style="left:1729px"></i>
+            <i class="g-gline" style="left:1937px"></i>
+            <i class="g-gline" style="left:2509px"></i>
+            <i class="g-today" style="left:91px"></i>
+          </div>
+
+        </div>
+      </div>
+      </div>
+    </section>
+
+  </div>
+
+  <p class="foot">Weekly call every Friday &middot; build to review every Thursday &middot;
+    <em>deep dive at each intermediate build</em>.</p>
+</div>
+
+<script>
+(function(){
+  function sbw(){
+    var v = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty('--sbw', (v > 0 ? v : 0) + 'px');
+  }
+  sbw();
+  window.addEventListener('resize', sbw);
+})();
+</script>
